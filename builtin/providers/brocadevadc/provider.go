@@ -23,15 +23,16 @@ func Provider() terraform.ResourceProvider {
 				Required:    true,
 				Type:        schema.TypeString,
 				DefaultFunc: schema.EnvDefaultFunc("VADC_PASSWORD", nil),
+				Sensitive:   true,
 			},
-			"verify_ssl": {
-				Required:    true,
+			"ssl_ignore_verify": {
+				Optional:    true,
 				Type:        schema.TypeBool,
 				DefaultFunc: schema.EnvDefaultFunc("VADC_VERIFY", nil),
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"brocadevadc_global":         resourceGlobal(),
+			"brocadevadc_global_system":  resourceGlobalSystem(),
 			"brocadevadc_licenses":       resourceLicenses(),
 			"brocadevadc_ssl":            resourceSSL(),
 			"brocadevadc_virtual_server": resourceVirtualServer(),
@@ -41,11 +42,29 @@ func Provider() terraform.ResourceProvider {
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	config := ClientConfig{
+	config := &ClientConfig{
 		URL:       d.Get("url").(string),
 		Username:  d.Get("username").(string),
 		Password:  d.Get("password").(string),
-		VerifySSL: d.Get("ssl_verify").(bool),
+		SslVerify: d.Get("ssl_ignore_verify").(bool),
 	}
 	return config, nil
+}
+
+var descriptions map[string]string
+
+func init() {
+	descriptions = map[string]string{
+		"url": "The URL used to connect to the Brocade vADC administration interface\n" +
+			"Example: https://127.0.0.1:9070",
+
+		"username": "The Username used to authenticate to the API as.\n" +
+			"Example: admin",
+
+		"password": "The corresponding users password.\n" +
+			"Example: ?",
+
+		"ssl_ignore_verify": "Verify the SSL certificate as being authentic.\n" +
+			"Example: false",
+	}
 }

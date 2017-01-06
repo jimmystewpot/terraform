@@ -103,6 +103,7 @@ func resourceHookCreate(d *schema.ResourceData, m interface{}) error {
 
 	return resourceHookRead(d, m)
 }
+
 func resourceHookRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(*BitbucketClient)
 	hook_req, err := client.Get(fmt.Sprintf("2.0/repositories/%s/%s/hooks/%s",

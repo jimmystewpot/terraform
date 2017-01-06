@@ -7,5 +7,5 @@ type ClientConfig struct {
 	URL       string
 	Username  string
 	Password  string
-	VerifySSL bool
+	SslVerify bool
 }
