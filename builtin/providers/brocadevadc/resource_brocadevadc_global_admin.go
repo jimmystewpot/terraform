@@ -109,11 +109,11 @@ func mapGlobalAdminType(d *schema.ResourceData) *Globals {
 				HonorFallbackScsv:            d.Get("honor_fallback_scsv").(bool),
 				Ssl3AllowRehandshake:         d.Get("ssl_allow_rehandshake").(string),
 				Ssl3Ciphers:                  d.Get("ssl3_ciphers").(string),
-				Ssl3DiffieHellmanKeyLength:   uint(d.Get("ssl3_diffie_hellman_key_length").(int)),
-				Ssl3MinRehandshakeInterval:   uint(d.Get("ssl3_min_rehandshake_interval").(int)),
+				Ssl3DiffieHellmanKeyLength:   d.Get("ssl3_diffie_hellman_key_length").(string),
+				Ssl3MinRehandshakeInterval:   d.Get("ssl3_min_rehandshake_interval").(int),
 				SslEllipticCurves:            elliptic,
 				SslInsertExtraFragment:       d.Get("ssl_insert_extra_fragment").(bool),
-				SslMaxHandshakeMessageSize:   uint(d.Get("ssl_max_handshake_message_size").(int)),
+				SslMaxHandshakeMessageSize:   d.Get("ssl_max_handshake_message_size").(int),
 				SslPreventTimingSideChannels: d.Get("ssl_prevent_timing_side_channels").(bool),
 				SslSignatureAlgorithms:       d.Get("ssl_signature_algorithms").(string),
 				SupportSsl2:                  d.Get("support_ssl2").(bool),
@@ -151,8 +151,7 @@ func resourceGlobalAdminCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.SetId(global_admin.Properties.GlobalAdmin.Uuid)
-	d.Set("uuid", global_admin.Properties.GlobalAdmin.Uuid)
+	d.SetId(d.Get("name").(string))
 
 	return resourceGlobalAdminRead(d, m)
 }
@@ -172,8 +171,6 @@ func resourceGlobalAdminRead(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-
-	d.Set("uuid", global.Properties.GlobalAdmin.Uuid)
 
 	d.Set("honor_fallback_scsv", global.Properties.GlobalAdmin.HonorFallbackScsv)
 	d.Set("ssl_allow_rehandshake", global.Properties.GlobalAdmin.Ssl3AllowRehandshake)

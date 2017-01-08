@@ -1,11 +1,11 @@
 package brocadevadc
 
 import (
-	//"bytes"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
-	"io/ioutil"
+	//"io/ioutil"
 	"log"
 )
 
@@ -162,29 +162,29 @@ func mapGlobalSystemType(d *schema.ResourceData) *Globals {
 	return &Globals{
 		Properties: &Properties{
 			GlobalBasic: &GlobalBasic{
-				AcceptingDelay:              uint(d.Get("accepting_delay").(int)),
+				AcceptingDelay:              d.Get("accepting_delay").(int),
 				AfmEnabled:                  d.Get("afm_enabled").(bool),
-				ChildControlCommandTimeout:  uint(d.Get("child_control_command_timeout").(int)),
-				ChildControlKillTimeout:     uint(d.Get("child_control_kill_timeout").(int)),
-				ChunkSize:                   uint(d.Get("chunk_size").(int)),
+				ChildControlCommandTimeout:  d.Get("child_control_command_timeout").(int),
+				ChildControlKillTimeout:     d.Get("child_control_kill_timeout").(int),
+				ChunkSize:                   d.Get("chunk_size").(int),
 				ClientFirstOpt:              d.Get("client_first_opt").(bool),
 				ClusterIdentifier:           d.Get("cluster_identifier").(string),
-				CpuStarvationCheckInterval:  uint(d.Get("cpu_starvation_check_interval").(int)),
-				CpuStarvationCheckTolerance: uint(d.Get("cpu_starvation_check_tolerance").(int)),
+				CpuStarvationCheckInterval:  d.Get("cpu_starvation_check_interval").(int),
+				CpuStarvationCheckTolerance: d.Get("cpu_starvation_check_tolerance").(int),
 				DataPlaneAccelerationMode:   d.Get("data_plane_acceleration_mode").(bool),
 				DataPlaneAccelerationCores:  d.Get("data_plane_acceleration_cores").(string),
 				Http2noCipherBlacklistCheck: d.Get("http2_no_cipher_blacklist_check").(bool),
 				LicenseServers:              licenses,
-				MaxFds:                      uint(d.Get("max_fds").(int)),
-				MonitorMemorySize:           uint(d.Get("monitor_memory_size").(int)),
-				RateClassLimit:              uint(d.Get("rate_class_limit").(int)),
+				MaxFds:                      d.Get("max_fds").(int),
+				MonitorMemorySize:           d.Get("monitor_memory_size").(int),
+				RateClassLimit:              d.Get("rate_class_limit").(int),
 				SharedPoolSize:              d.Get("shared_pool_size").(string),
-				SlmClassLimit:               uint(d.Get("slm_class_limit").(int)),
-				SoRbuffSize:                 uint(d.Get("so_rbuff_size").(int)),
-				SoWbuffSize:                 uint(d.Get("so_wbuff_size").(int)),
+				SlmClassLimit:               d.Get("slm_class_limit").(int),
+				SoRbuffSize:                 d.Get("so_rbuff_size").(int),
+				SoWbuffSize:                 d.Get("so_wbuff_size").(int),
 				SocketOptimizations:         d.Get("socket_optimizations").(string),
 				StorageShared:               d.Get("storage_shared").(bool),
-				TipClassLimit:               uint(d.Get("tip_class_limit").(int)),
+				TipClassLimit:               d.Get("tip_class_limit").(int),
 			},
 		},
 	}
@@ -194,29 +194,31 @@ func resourceGlobalSystemCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*ClientConfig)
 	global_system := mapGlobalSystemType(d)
 
-	log.Printf("mapGlobalSystemType: %+v \n", *global_system)
+	log.Printf("GlobalSystemCreate mapGlobalSystemType: %+v \n", *global_system)
 
 	jsonpayload := jsonEncoder(global_system)
 
 	system_req, err := client.Put(fmt.Sprintf("%s/global_settings", endpoint), jsonpayload)
 
-	log.Printf("system_req status code: %+v\n", system_req.StatusCode)
-	io, _ := ioutil.ReadAll(system_req.Body)
-	log.Printf("systaem_req body: %+v \n", string(io))
+	log.Printf("GlobalSystemCreate system_req status code: %+v\n", system_req.StatusCode)
+
+	// Read the returned JSON into a buffer
+	RequestBuffer := new(bytes.Buffer)
+	RequestBuffer.ReadFrom(system_req.Body)
+
+	log.Printf("GlobalSystemCreate system_req body: %+v \n", RequestBuffer)
 
 	if err != nil {
 		return err
 	}
 
-	var globals Globals
-	decoder := json.NewDecoder(system_req.Body)
-	err = decoder.Decode(&globals)
-	if err != nil {
+	var vAdcReturnedData Globals
+	err = json.NewDecoder(RequestBuffer).Decode(&vAdcReturnedData)
+	if jsonDecodeError(err) {
 		return err
 	}
 
-	d.SetId(global_system.Properties.GlobalBasic.Uuid)
-	d.Set("uuid", global_system.Properties.GlobalBasic.Uuid)
+	d.SetId("global_settings/system")
 
 	return resourceGlobalSystemRead(d, m)
 }
@@ -233,11 +235,11 @@ func resourceGlobalSystemRead(d *schema.ResourceData, m interface{}) error {
 
 	decoder := json.NewDecoder(global_system_req.Body)
 	err = decoder.Decode(&global)
-	if err != nil {
+
+	if jsonDecodeError(err) {
 		return err
 	}
 
-	d.Set("uuid", global.Properties.GlobalBasic.Uuid)
 	d.Set("accepting_delay", global.Properties.GlobalBasic.AcceptingDelay)
 	d.Set("afm_enabled", global.Properties.GlobalBasic.AfmEnabled)
 	d.Set("child_control_command_timeout", global.Properties.GlobalBasic.ChildControlCommandTimeout)
