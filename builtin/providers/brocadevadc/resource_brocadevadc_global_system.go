@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
-	//"io/ioutil"
 	"log"
 )
 
@@ -191,8 +190,13 @@ func mapGlobalSystemType(d *schema.ResourceData) *Globals {
 	}
 }
 
-func resourceGlobalSystemCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*ClientConfig)
+func resourceGlobalSystemCreate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*ClientConfig)
+
+	// Create a lock, there should be only one module running concurrently.
+	client.Mutex.Lock()
+	defer client.Mutex.Unlock()
+
 	global_system := mapGlobalSystemType(d)
 
 	log.Printf("GlobalSystemCreate mapGlobalSystemType: %+v \n", *global_system)
@@ -201,7 +205,10 @@ func resourceGlobalSystemCreate(d *schema.ResourceData, m interface{}) error {
 
 	system_req, err := client.Put(fmt.Sprintf("%s/global_settings", endpoint), jsonpayload)
 
-	log.Printf("GlobalSystemCreate system_req status code: %+v\n", system_req.StatusCode)
+	if !handleHttpCodes(system_req) {
+		log.Printf("GlobalSystemCreate system_req status code: %+v\n", system_req.StatusCode)
+		return err
+	}
 
 	// Read the returned JSON into a buffer
 	RequestBuffer := new(bytes.Buffer)
@@ -221,11 +228,11 @@ func resourceGlobalSystemCreate(d *schema.ResourceData, m interface{}) error {
 
 	d.SetId("global_settings/system")
 
-	return resourceGlobalSystemRead(d, m)
+	return resourceGlobalSystemRead(d, meta)
 }
 
-func resourceGlobalSystemRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*ClientConfig)
+func resourceGlobalSystemRead(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*ClientConfig)
 	global_system_req, err := client.Get(fmt.Sprintf("%s/global_settings", endpoint))
 
 	if err != nil {
@@ -268,10 +275,10 @@ func resourceGlobalSystemRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceGlobalSystemUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceGlobalSystemUpdate(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceGlobalSystemDelete(d *schema.ResourceData, m interface{}) error {
+func resourceGlobalSystemDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }

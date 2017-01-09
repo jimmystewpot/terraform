@@ -1,11 +1,10 @@
 package brocadevadc
 
 import (
-	//"bytes"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
-	"io/ioutil"
 	"log"
 )
 
@@ -26,7 +25,7 @@ func resourceGlobalAdmin() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "rfc5746",
-				ValidateFunc: validateSS3Handshake,
+				ValidateFunc: validateSsl3Handshake,
 			},
 			"ssl3_ciphers": &schema.Schema{
 				Type:     schema.TypeString,
@@ -81,12 +80,12 @@ func resourceGlobalAdmin() *schema.Resource {
 			"support_tls1": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  false,
 			},
 			"support_tls11": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  false,
 			},
 			"support_tls12": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -109,7 +108,7 @@ func mapGlobalAdminType(d *schema.ResourceData) *Globals {
 		Properties: &Properties{
 			GlobalAdmin: &GlobalAdmin{
 				HonorFallbackScsv:            d.Get("honor_fallback_scsv").(bool),
-				Ssl3AllowRehandshake:         d.Get("ssl_allow_rehandshake").(string),
+				Ssl3AllowRehandshake:         d.Get("ssl3_allow_rehandshake").(string),
 				Ssl3Ciphers:                  d.Get("ssl3_ciphers").(string),
 				Ssl3DiffieHellmanKeyLength:   d.Get("ssl3_diffie_hellman_key_length").(string),
 				Ssl3MinRehandshakeInterval:   d.Get("ssl3_min_rehandshake_interval").(int),
@@ -121,46 +120,58 @@ func mapGlobalAdminType(d *schema.ResourceData) *Globals {
 				SupportSsl2:                  d.Get("support_ssl2").(bool),
 				SupportSsl3:                  d.Get("support_ssl3").(bool),
 				SupportTls1:                  d.Get("support_tls1").(bool),
-				SupportTls11:                 d.Get("Support_tls11").(bool),
+				SupportTls11:                 d.Get("support_tls11").(bool),
 				SupportTls12:                 d.Get("support_tls12").(bool),
 			},
 		},
 	}
 }
 
-func resourceGlobalAdminCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*ClientConfig)
+func resourceGlobalAdminCreate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*ClientConfig)
+
+	// Create a lock, there should be only one module running concurrently.
+	client.Mutex.Lock()
+	defer client.Mutex.Unlock()
+
 	global_admin := mapGlobalAdminType(d)
 
-	log.Printf("[DEBUG] mapGlobalAdminType: %+v \n", global_admin)
+	log.Printf("GlobalAdminCreate mapGlobalAdminType: %+v \n", *global_admin)
 
 	jsonpayload := jsonEncoder(global_admin)
 
 	system_req, err := client.Put(fmt.Sprintf("%s/global_settings", endpoint), jsonpayload)
 
-	log.Printf("[DEBUG] system_req status code: %+v\n", system_req.StatusCode)
-	io, _ := ioutil.ReadAll(system_req.Body)
-	log.Printf("[DEBUG] systaem_req body: %+v \n", string(io))
+	if !handleHttpCodes(system_req) {
+		log.Printf("GlobalAdminCreate system_req status code: %+v\n", system_req.StatusCode)
+		return err
+	}
+
+	// Read the returned JSON into a buffer
+	RequestBuffer := new(bytes.Buffer)
+	RequestBuffer.ReadFrom(system_req.Body)
+
+	log.Printf("GlobalAdminCreate system_req body: %+v \n", RequestBuffer)
 
 	if err != nil {
 		return err
 	}
 
-	var globals Globals
-	decoder := json.NewDecoder(system_req.Body)
-	err = decoder.Decode(&globals)
-	if err != nil {
+	var vAdcReturnedData Globals
+
+	err = json.NewDecoder(RequestBuffer).Decode(&vAdcReturnedData)
+	if jsonDecodeError(err) {
 		return err
 	}
 
-	d.SetId(d.Get("name").(string))
+	d.SetId("global_settings/admin")
 
-	return resourceGlobalAdminRead(d, m)
+	return resourceGlobalAdminRead(d, meta)
 }
 
-func resourceGlobalAdminRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*ClientConfig)
-	global_system_req, err := client.Get(fmt.Sprintf("%s/global_settings", endpoint))
+func resourceGlobalAdminRead(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*ClientConfig)
+	global_admin_req, err := client.Get(fmt.Sprintf("%s/global_settings", endpoint))
 
 	if err != nil {
 		return err
@@ -168,9 +179,10 @@ func resourceGlobalAdminRead(d *schema.ResourceData, m interface{}) error {
 
 	var global Globals
 
-	decoder := json.NewDecoder(global_system_req.Body)
+	decoder := json.NewDecoder(global_admin_req.Body)
 	err = decoder.Decode(&global)
-	if err != nil {
+
+	if jsonDecodeError(err) {
 		return err
 	}
 
@@ -189,13 +201,14 @@ func resourceGlobalAdminRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("support_tls1", global.Properties.GlobalAdmin.SupportTls1)
 	d.Set("Support_tls11", global.Properties.GlobalAdmin.SupportTls11)
 	d.Set("support_tls12", global.Properties.GlobalAdmin.SupportTls12)
+
 	return nil
 }
 
-func resourceGlobalAdminUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceGlobalAdminUpdate(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceGlobalAdminDelete(d *schema.ResourceData, m interface{}) error {
+func resourceGlobalAdminDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }

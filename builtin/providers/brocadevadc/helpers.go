@@ -9,6 +9,21 @@ import (
 	"net/http"
 )
 
+// Handle the Error codes returned from the API
+// 200 - Correctly Uploaded
+// 201 - Created New
+// 204 - No Content which is only for file uploads
+func handleHttpCodes(h *http.Response) bool {
+	okay := []int{200, 201, 204}
+	log.Printf("handleHttpCodes status_code: %+v", h.StatusCode)
+	for _, status_code := range okay {
+		if h.StatusCode == status_code {
+			return true
+		}
+	}
+	return false
+}
+
 // This is a http Client addon to verify the certificate or not based on the configuration.
 func http_ssl(c *ClientConfig) *http.Client {
 	return &http.Client{
@@ -39,7 +54,7 @@ func jsonDecodeError(e error) bool {
 	if e != nil {
 		if serr, ok := e.(*json.UnmarshalTypeError); ok {
 			line := serr.Offset
-			log.Printf("GlobalSystemCreate JSON Decode at offset: %d: %+v", line, e)
+			log.Printf("JSON Decode at offset: %d: %+v", line, e)
 		}
 		return true
 	} else {
@@ -63,7 +78,7 @@ func validateDataPlaneCores(v interface{}, k string) (ws []string, errors []erro
 }
 
 // this func will validate that the input is either rfc5746, always, never or safe.
-func validateSS3Handshake(v interface{}, k string) (ws []string, errors []error) {
+func validateSsl3Handshake(v interface{}, k string) (ws []string, errors []error) {
 	var handshakes = []string{"rfc5746", "always", "never", "safe"}
 	value := v.(string)
 
