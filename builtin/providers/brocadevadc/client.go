@@ -2,9 +2,6 @@ package brocadevadc
 
 import (
 	"bytes"
-	"crypto/tls"
-	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -48,42 +45,4 @@ func (c *ClientConfig) Delete(uripath string) (*http.Response, error) {
 	}
 	req.SetBasicAuth(c.Username, c.Password)
 	return client.Do(req)
-}
-
-// This is a http Client addon to verify the certificate or not based on the configuration.
-func http_ssl(c *ClientConfig) *http.Client {
-	return &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: c.SslVerify,
-			},
-		},
-	}
-}
-
-// This is just a wrapper for the JSON Encoding of structs
-func jsonEncoder(j interface{}) *bytes.Buffer {
-	var jsonbuffer []byte
-
-	jsonpayload := bytes.NewBuffer(jsonbuffer)
-	err := json.NewEncoder(jsonpayload).Encode(j)
-
-	if err != nil {
-		log.Printf("jsonEcoder error: %+v", err)
-	}
-
-	return jsonpayload
-}
-
-func jsonDecodeError(e error) bool {
-	// If the JSON does not decode we want to know why and where.
-	if e != nil {
-		if serr, ok := e.(*json.UnmarshalTypeError); ok {
-			line := serr.Offset
-			log.Printf("GlobalSystemCreate JSON Decode at offset: %d: %+v", line, e)
-		}
-		return true
-	} else {
-		return false
-	}
 }

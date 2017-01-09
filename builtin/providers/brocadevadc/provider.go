@@ -33,6 +33,7 @@ func Provider() terraform.ResourceProvider {
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"brocadevadc_global_system":  resourceGlobalSystem(),
+			"brocadevadc_global_admin":   resourceGlobalAdmin(),
 			"brocadevadc_licenses":       resourceLicenses(),
 			"brocadevadc_ssl":            resourceSSL(),
 			"brocadevadc_virtual_server": resourceVirtualServer(),

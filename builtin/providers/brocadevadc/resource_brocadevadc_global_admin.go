@@ -23,9 +23,10 @@ func resourceGlobalAdmin() *schema.Resource {
 				Default:  false,
 			},
 			"ssl3_allow_rehandshake": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "rfc5746",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "rfc5746",
+				ValidateFunc: validateSS3Handshake,
 			},
 			"ssl3_ciphers": &schema.Schema{
 				Type:     schema.TypeString,
@@ -33,9 +34,10 @@ func resourceGlobalAdmin() *schema.Resource {
 				Default:  "SSL_RSA_WITH_AES_128_GCM_SHA256,SSL_RSA_WITH_AES_128_CBC_SHA256,SSL_RSA_WITH_AES_128_CBC_SHA,SSL_RSA_WITH_AES_256_GCM_SHA384,SSL_RSA_WITH_AES_256_CBC_SHA256,SSL_RSA_WITH_AES_256_CBC_SHA,SSL_RSA_WITH_3DES_EDE_CBC_SHA,SSL_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,SSL_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,SSL_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,SSL_DHE_DSS_WITH_AES_128_CBC_SHA,SSL_DHE_DSS_WITH_AES_256_CBC_SHA,SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
 			},
 			"ssl3_diffie_hellman_key_length": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "dh_2048",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "dh_2048",
+				ValidateFunc: validateSS3diffieHellmanKl,
 			},
 			"ssl3_min_rehandshake_interval": &schema.Schema{
 				Type:     schema.TypeInt,
@@ -79,17 +81,17 @@ func resourceGlobalAdmin() *schema.Resource {
 			"support_tls1": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
+				Default:  true,
 			},
 			"support_tls11": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
+				Default:  true,
 			},
 			"support_tls12": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
+				Default:  true,
 			},
 		},
 	}

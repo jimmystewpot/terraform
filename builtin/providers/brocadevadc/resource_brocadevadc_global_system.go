@@ -65,9 +65,10 @@ func resourceGlobalSystem() *schema.Resource {
 				Default:  2000,
 			},
 			"data_plane_acceleration_cores": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "one",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "one",
+				ValidateFunc: validateDataPlaneCores,
 			},
 			"data_plane_acceleration_mode": &schema.Schema{
 				Type:     schema.TypeBool,
