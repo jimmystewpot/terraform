@@ -145,11 +145,8 @@ type GlobalConnection struct {
 }
 
 type GlobalDataPlaneAcceleration struct {
-	IdleConnectionsMax int  `json:"idle_connections_max,omitempty"`
-	IdleTimeout        int  `json:"connection_idle_timeout,omitempty"`
-	ListenQueueSize    int  `json:"listen_queue_size,omitempty"`
-	MaxAccepting       int  `json:"max_accepting,omitempty"`
-	MultipleAccept     bool `json:"multiple_accept,omitempty"`
+	TcpDelayAck int `json:"tcp_delay_ack,omitempty"`
+	TcpWinScale int `json:"tcp_win_scale,omitempty"`
 }
 
 type GlobalDns struct {
@@ -165,6 +162,7 @@ type GlobalDnsAutoscale struct {
 
 type GlobalEc2 struct {
 	AccessKeyID           string `json:"access_key_id,omitempty"`
+	AwstoolTimeout        int    `json:"awstool_timeout,omitempty"`
 	SecretAccessKey       string `json:"secret_access_key,omitempty"`
 	VerifyQueryServerCert bool   `json:"verify_query_server_cert,omitempty"`
 }

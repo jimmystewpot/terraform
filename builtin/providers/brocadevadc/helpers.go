@@ -106,3 +106,17 @@ func validateSS3diffieHellmanKl(v interface{}, k string) (ws []string, errors []
 	errors = append(errors, fmt.Errorf("%q must be one of the following %+v", k, dhkl))
 	return
 }
+
+// validate that the heartbeat is either unicast or multicast
+func validateHeartBeatMethod(v interface{}, k string) (ws []string, errors []error) {
+	var heartbeat = []string{"unicast", "multicast"}
+	value := v.(string)
+
+	for _, h := range heartbeat {
+		if value == h {
+			return
+		}
+	}
+	errors = append(errors, fmt.Errorf("%q must be one of the following %+v", k, heartbeat))
+	return
+}

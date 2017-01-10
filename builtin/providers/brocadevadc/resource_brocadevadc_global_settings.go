@@ -361,6 +361,162 @@ func resourceGlobalSettings() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			// Start global_settings/dns
+			"max_ttl": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  86400,
+			},
+			"min_ttl": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  86400,
+			},
+			"negative_expiry": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  60,
+			},
+			"size": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  10867,
+			},
+			"timeout": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  12,
+			},
+			// Start global_settings/ec2
+			"access_key_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+			"awstool_timeout": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  10,
+			},
+			"secret_access_key": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+			"verify_query_server_cert": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			// Start global_settings/eventing
+			"mail_interval": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  30,
+			},
+			"max_attempts": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  10,
+			},
+			// Start global_settings/fault_tolerance
+			"arp_count": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  10,
+			},
+			"auto_failback": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+			"child_timeout": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  10,
+			},
+			"frontend_check_ips": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MinItems: 1,
+				Elem: schema.Schema{
+					Type: schema.TypeString},
+			},
+			"heartbeat_method": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "unicast",
+				ValidateFunc: validateHeartBeatMethod,
+			},
+			"igmp_interval": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  30,
+			},
+			"l4accel_child_timeout": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  5,
+			},
+			"l4accel_sync_port": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  10240,
+			},
+			"monitor_interval": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  500,
+			},
+			"monitor_timeout": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  5,
+			},
+			"multicast_address": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "239.100.1.1:9090",
+			},
+			"unicast_port": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  9090,
+			},
+			"use_bind_ip": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			"fault_tolerance_verbose": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			// Start global_settings/fips
+			"fips_enabled": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			// Start global_settings/ftp
+			"data_bind_low": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			// Start global_settings/glb
+			"glb_verbose": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			// Start global_settings/historical_activity
+			"keep_days": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  90,
+			},
 		},
 	}
 }
@@ -369,6 +525,7 @@ func mapGlobalSettingsType(d *schema.ResourceData) *Globals {
 	var licenses []string
 	var elliptic []string
 	var allowed_update_hosts []string
+	var frontend_check_ips []string
 
 	return &Globals{
 		Properties: &Properties{
@@ -454,12 +611,56 @@ func mapGlobalSettingsType(d *schema.ResourceData) *Globals {
 				MaxAccepting:       d.Get("max_accepting").(int),
 				MultipleAccept:     d.Get("multiple_accept").(bool),
 			},
-			GlobalDataPlaneAcceleration: &GlobalDataPlaneAcceleration{},
-			GlobalDns:                   &GlobalDns{},
-			GlobalDnsAutoscale:          &GlobalDnsAutoscale{},
-			GlobalEc2:                   &GlobalEc2{},
-			GlobalEventing:              &GlobalEventing{},
-			GlobalFaultTolerance:        &GlobalFaultTolerance{},
+			GlobalDataPlaneAcceleration: &GlobalDataPlaneAcceleration{
+				TcpDelayAck: d.Get("tcp_delay_ack").(int),
+				TcpWinScale: d.Get("tcp_win_scale").(int),
+			},
+			GlobalDns: &GlobalDns{
+				MaxTTL:         d.Get("max_ttl").(int),
+				MinTTL:         d.Get("min_ttl").(int),
+				NegativeExpiry: d.Get("negative_expiry").(int),
+				Size:           d.Get("size").(int),
+				Timeout:        d.Get("timeout").(int),
+			},
+			GlobalDnsAutoscale: &GlobalDnsAutoscale{},
+			GlobalEc2: &GlobalEc2{
+				AccessKeyID:           d.Get("access_key_id").(string),
+				AwstoolTimeout:        d.Get("awstool_timeout").(int),
+				SecretAccessKey:       d.Get("secret_access_key").(string),
+				VerifyQueryServerCert: d.Get("verify_query_server_cert").(bool),
+			},
+			GlobalEventing: &GlobalEventing{
+				MailInterval: d.Get("mail_interval").(int),
+				MaxAttempts:  d.Get("max_attempts").(int),
+			},
+			GlobalFaultTolerance: &GlobalFaultTolerance{
+				ArpCount:            d.Get("arp_count").(int),
+				AutoFailback:        d.Get("auto_failback").(bool),
+				ChildTimeout:        d.Get("child_timeout").(int),
+				FrontendCheckIps:    frontend_check_ips,
+				HeartbeatMethod:     d.Get("heartbeat_method").(string),
+				IgmpInterval:        d.Get("igmp_interval").(int),
+				L4AccelChildTimeout: d.Get("l4accel_child_timeout").(int),
+				L4AccelSyncPort:     d.Get("l4accel_sync_port").(int),
+				MonitorInterval:     d.Get("monitor_interval").(int),
+				MonitorTimeout:      d.Get("monitor_timeout").(int),
+				MulticastAddress:    d.Get("multicast_address").(string),
+				UnicastPort:         d.Get("unicast_port").(int),
+				UseBindIP:           d.Get("use_bind_ip").(bool),
+				Verbose:             d.Get("fault_tolerance_verbose").(bool),
+			},
+			GlobalFips: &GlobalFips{
+				Enabled: d.Get("fips_enabled").(bool),
+			},
+			GlobalFtp: &GlobalFtp{
+				DataBindLow: d.Get("data_bind_low").(bool),
+			},
+			GlobalGlb: &GlobalGlb{
+				Verbose: d.Get("glb_verbose").(bool),
+			},
+			GlobalHistoricalActivity: &GlobalHistoricalActivity{
+				KeepDays: d.Get("keep_days").(int),
+			},
 		},
 	}
 }
@@ -595,6 +796,57 @@ func resourceGlobalSettingsRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("allowed_update_hosts", global.Properties.GlobalClusterComms.AllowedUpdateHosts)
 	d.Set("state_sync_interval", global.Properties.GlobalClusterComms.StateSyncInterval)
 	d.Set("state_sync_timeout", global.Properties.GlobalClusterComms.StateSyncTimeout)
+
+	// global_settings/connection
+	d.Set("idle_connections_max", global.Properties.GlobalConnection.IdleConnectionsMax)
+	d.Set("idle_timeout", global.Properties.GlobalConnection.IdleTimeout)
+	d.Set("max_accepting", global.Properties.GlobalConnection.MaxAccepting)
+	d.Set("multiple_accept", global.Properties.GlobalConnection.MultipleAccept)
+
+	// global_settings/data_plane_acceleration
+	d.Set("max_ttl", global.Properties.GlobalDns.MaxTTL)
+	d.Set("min_ttl", global.Properties.GlobalDns.MinTTL)
+	d.Set("negative_expiry", global.Properties.GlobalDns.NegativeExpiry)
+	d.Set("size", global.Properties.GlobalDns.Size)
+	d.Set("timeout", global.Properties.GlobalDns.Timeout)
+
+	// global_settings/ec2
+	d.Set("access_key_id", global.Properties.GlobalEc2.AccessKeyID)
+	d.Set("awstool_timeout", global.Properties.GlobalEc2.AwstoolTimeout)
+	d.Set("secret_access_key", global.Properties.GlobalEc2.SecretAccessKey)
+	d.Set("verify_query_server_cert", global.Properties.GlobalEc2.VerifyQueryServerCert)
+
+	// global_settings/eventing
+	d.Set("mail_interval", global.Properties.GlobalEventing.MailInterval)
+	d.Set("max_attempts", global.Properties.GlobalEventing.MaxAttempts)
+
+	// global_settings/fault_tolerance
+	d.Set("arp_count", global.Properties.GlobalFaultTolerance.ArpCount)
+	d.Set("auto_failback", global.Properties.GlobalFaultTolerance.AutoFailback)
+	d.Set("child_timeout", global.Properties.GlobalFaultTolerance.ChildTimeout)
+	d.Set("frontend_check_ips", global.Properties.GlobalFaultTolerance.FrontendCheckIps)
+	d.Set("heartbeat_method", global.Properties.GlobalFaultTolerance.HeartbeatMethod)
+	d.Set("igmp_interval", global.Properties.GlobalFaultTolerance.IgmpInterval)
+	d.Set("l4accel_child_timeout", global.Properties.GlobalFaultTolerance.L4AccelChildTimeout)
+	d.Set("l4accel_sync_port", global.Properties.GlobalFaultTolerance.L4AccelSyncPort)
+	d.Set("monitor_interval", global.Properties.GlobalFaultTolerance.MonitorInterval)
+	d.Set("monitor_timeout", global.Properties.GlobalFaultTolerance.MonitorTimeout)
+	d.Set("multicast_address", global.Properties.GlobalFaultTolerance.MulticastAddress)
+	d.Set("unicast_port", global.Properties.GlobalFaultTolerance.UnicastPort)
+	d.Set("use_bind_ip", global.Properties.GlobalFaultTolerance.UseBindIP)
+	d.Set("fault_tolerance_verbose", global.Properties.GlobalFaultTolerance.Verbose)
+
+	// global_settings/fips
+	d.Set("fips_enabled", global.Properties.GlobalFips.Enabled)
+
+	// global_settings/ftp
+	d.Set("data_bind_low", global.Properties.GlobalFtp.DataBindLow)
+
+	// Start global_settings/glb
+	d.Set("glb_verbose", global.Properties.GlobalGlb.Verbose)
+
+	// Start global_settings/historical_activity
+	d.Set("keep_days", global.Properties.GlobalHistoricalActivity.KeepDays)
 
 	return nil
 }
