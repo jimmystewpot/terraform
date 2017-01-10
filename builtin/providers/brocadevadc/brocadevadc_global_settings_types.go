@@ -7,44 +7,46 @@ type Globals struct {
 }
 
 type Properties struct {
-	GlobalBasic              *GlobalBasic              `json:"basic,omitempty"`
-	GlobalAdmin              *GlobalAdmin              `json:"admin,omitempty"`
-	GlobalAppliance          *GlobalAppliance          `json:"appliance,omitempty"`
-	GlobalAptimizer          *GlobalAptimizer          `json:"aptimizer,omitempty"`
-	GlobalAuditlog           *GlobalAuditlog           `json:"auditlog,omitempty"`
-	GlobalAutoScaler         *GlobalAutoScaler         `json:"autoscaler,omitempty"`
-	GlobalBandwidth          *GlobalBandwidth          `json:"bandwidth,omitempty"`
-	GlobalBgp                *GlobalBgp                `json:"bgp,omitempty"`
-	GlobalClusterComms       *GlobalClusterComms       `json:"cluster_comms,omitempty"`
-	GlobalDns                *GlobalDns                `json:"dns,omitempty"`
-	GlobalDnsAutoscale       *GlobalDnsAutoscale       `json:"dns_autoscale,omitempty"`
-	GlobalEc2                *GlobalEc2                `json:"ec2,omitempty"`
-	GlobalEventing           *GlobalEventing           `json:"eventing,omitempty"`
-	GlobalFaultTolerance     *GlobalFaultTolerance     `json:"fault_tolerance,omitempty"`
-	GlobalFips               *GlobalFips               `json:"fips,omitempty"`
-	GlobalFtp                *GlobalFtp                `json:"ftp,omitempty"`
-	GlobalGlb                *GlobalGlb                `json:"glb,omitempty"`
-	GlobalHistoricalActivity *GlobalHistoricalActivity `json:"historical_activity,omitempty"`
-	GlobalHTTP               *GlobalHTTP               `json:"http,omitempty"`
-	GlobalIP                 *GlobalIP                 `json:"ip,omitempty"`
-	GlobalJava               *GlobalJava               `json:"java,omitempty"`
-	GlobalKerberos           *GlobalKerberos           `json:"kerberos,omitempty"`
-	GlobalLog                *GlobalLog                `json:"log,omitempty"`
-	GlobalOspfv2             *GlobalOspfv2             `json:"ospfv2,omitempty"`
-	GlobalPeriodicLog        *GlobalPeriodicLog        `json:"periodic_log,omitempty"`
-	GlobalProtection         *GlobalProtection         `json:"protection,omitempty"`
-	GlobalRecentConnections  *GlobalRecentConnections  `json:"recent_connections,omitempty"`
-	GlobalRemoteLicensing    *GlobalRemoteLicensing    `json:"remote_licensing,omitempty"`
-	GlobalRestAPI            *GlobalRestAPI            `json:"rest_api,omitempty"`
-	GlobalSecurity           *GlobalSecurity           `json:"security,omitempty"`
-	GlobalSession            *GlobalSession            `json:"session,omitempty"`
-	GlobalSnmp               *GlobalSnmp               `json:"snmp,omitempty"`
-	GlobalSoap               *GlobalSoap               `json:"soap,omitempty"`
-	GlobalSourceNat          *GlobalSourceNat          `json:"source_nat,omitempty"`
-	GlobalSsl                *GlobalSsl                `json:"ssl,omitempty"`
-	GlobalSslHardware        *GlobalSslHardware        `json:"ssl_hardware,omitempty"`
-	GlobalTrafficscript      *GlobalTrafficscript      `json:"trafficscript,omitempty"`
-	GlobalWebCache           *GlobalWebCache           `json:"web_cache,omitempty"`
+	GlobalBasic                 *GlobalBasic                 `json:"basic,omitempty"`
+	GlobalAdmin                 *GlobalAdmin                 `json:"admin,omitempty"`
+	GlobalAppliance             *GlobalAppliance             `json:"appliance,omitempty"`
+	GlobalAptimizer             *GlobalAptimizer             `json:"aptimizer,omitempty"`
+	GlobalAuditlog              *GlobalAuditlog              `json:"auditlog,omitempty"`
+	GlobalAutoScaler            *GlobalAutoScaler            `json:"autoscaler,omitempty"`
+	GlobalBandwidth             *GlobalBandwidth             `json:"bandwidth,omitempty"`
+	GlobalBgp                   *GlobalBgp                   `json:"bgp,omitempty"`
+	GlobalClusterComms          *GlobalClusterComms          `json:"cluster_comms,omitempty"`
+	GlobalConnection            *GlobalConnection            `json:"connection,omitempty"`
+	GlobalDataPlaneAcceleration *GlobalDataPlaneAcceleration `json:"data_plane_acceleration,omitempty"`
+	GlobalDns                   *GlobalDns                   `json:"dns,omitempty"`
+	GlobalDnsAutoscale          *GlobalDnsAutoscale          `json:"dns_autoscale,omitempty"`
+	GlobalEc2                   *GlobalEc2                   `json:"ec2,omitempty"`
+	GlobalEventing              *GlobalEventing              `json:"eventing,omitempty"`
+	GlobalFaultTolerance        *GlobalFaultTolerance        `json:"fault_tolerance,omitempty"`
+	GlobalFips                  *GlobalFips                  `json:"fips,omitempty"`
+	GlobalFtp                   *GlobalFtp                   `json:"ftp,omitempty"`
+	GlobalGlb                   *GlobalGlb                   `json:"glb,omitempty"`
+	GlobalHistoricalActivity    *GlobalHistoricalActivity    `json:"historical_activity,omitempty"`
+	GlobalHTTP                  *GlobalHTTP                  `json:"http,omitempty"`
+	GlobalIP                    *GlobalIP                    `json:"ip,omitempty"`
+	GlobalJava                  *GlobalJava                  `json:"java,omitempty"`
+	GlobalKerberos              *GlobalKerberos              `json:"kerberos,omitempty"`
+	GlobalLog                   *GlobalLog                   `json:"log,omitempty"`
+	GlobalOspfv2                *GlobalOspfv2                `json:"ospfv2,omitempty"`
+	GlobalPeriodicLog           *GlobalPeriodicLog           `json:"periodic_log,omitempty"`
+	GlobalProtection            *GlobalProtection            `json:"protection,omitempty"`
+	GlobalRecentConnections     *GlobalRecentConnections     `json:"recent_connections,omitempty"`
+	GlobalRemoteLicensing       *GlobalRemoteLicensing       `json:"remote_licensing,omitempty"`
+	GlobalRestAPI               *GlobalRestAPI               `json:"rest_api,omitempty"`
+	GlobalSecurity              *GlobalSecurity              `json:"security,omitempty"`
+	GlobalSession               *GlobalSession               `json:"session,omitempty"`
+	GlobalSnmp                  *GlobalSnmp                  `json:"snmp,omitempty"`
+	GlobalSoap                  *GlobalSoap                  `json:"soap,omitempty"`
+	GlobalSourceNat             *GlobalSourceNat             `json:"source_nat,omitempty"`
+	GlobalSsl                   *GlobalSsl                   `json:"ssl,omitempty"`
+	GlobalSslHardware           *GlobalSslHardware           `json:"ssl_hardware,omitempty"`
+	GlobalTrafficscript         *GlobalTrafficscript         `json:"trafficscript,omitempty"`
+	GlobalWebCache              *GlobalWebCache              `json:"web_cache,omitempty"`
 }
 
 // global basic matches the API uri and JSON but it is actually global_system
@@ -94,13 +96,13 @@ type GlobalAdmin struct {
 }
 
 type GlobalAppliance struct {
-	Bootloader_password         string `json:"bootloader_password,omitempty"`
-	Manage_ncipher              bool   `json:"manage_ncipher,ommitempty"`
-	Nethsm_esn                  string `json:"nethsm_esn,omitempty"`
-	Nethsm_hash                 string `json:"nethsm_hash,omitempty"`
-	Nethsm_ip                   string `json:"nethsm_ip,omitempty"`
-	Nethsm_ncipher_rfs          string `json:"nethsm_ncipher_rfs,omitempty"`
-	Return_path_routing_enabled bool   `json:"return_path_routing_enabled,omitempty"`
+	BootloaderPassword       string `json:"bootloader_password,omitempty"`
+	ManageNcipher            bool   `json:"manage_ncipher,ommitempty"`
+	NethsmEsn                string `json:"nethsm_esn,omitempty"`
+	NethsmHash               string `json:"nethsm_hash,omitempty"`
+	NethsmIp                 string `json:"nethsm_ip,omitempty"`
+	NethsmNcipherRfs         string `json:"nethsm_ncipher_rfs,omitempty"`
+	ReturnPathRoutingEnabled bool   `json:"return_path_routing_enabled,omitempty"`
 }
 
 type GlobalAptimizer struct {
@@ -137,6 +139,14 @@ type GlobalClusterComms struct {
 type GlobalConnection struct {
 	IdleConnectionsMax int  `json:"idle_connections_max,omitempty"`
 	IdleTimeout        int  `json:"idle_timeout,omitempty"`
+	ListenQueueSize    int  `json:"listen_queue_size,omitempty"`
+	MaxAccepting       int  `json:"max_accepting,omitempty"`
+	MultipleAccept     bool `json:"multiple_accept,omitempty"`
+}
+
+type GlobalDataPlaneAcceleration struct {
+	IdleConnectionsMax int  `json:"idle_connections_max,omitempty"`
+	IdleTimeout        int  `json:"connection_idle_timeout,omitempty"`
 	ListenQueueSize    int  `json:"listen_queue_size,omitempty"`
 	MaxAccepting       int  `json:"max_accepting,omitempty"`
 	MultipleAccept     bool `json:"multiple_accept,omitempty"`

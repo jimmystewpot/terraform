@@ -225,6 +225,142 @@ func resourceGlobalSettings() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
+			// start global_settings/appliance
+			"bootloader_password": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"manage_ncipher": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			"nethsm_esn": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"nethsm_hash": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"nethsm_ip": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"nethsm_ncipher_rfs": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"return_path_routing_enabled": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			// Start global_settings/aptimizer
+			"max_dependent_fetch_size": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "2MB",
+			},
+			"max_original_content_buffer_size": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "2MB",
+			},
+			"watchdog_interval": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  300,
+			},
+			"watchdog_limit": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  3,
+			},
+			// Start global_settings/auditlog
+			"via_eventd": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			"via_syslog": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			// Start global_settings/autoscaler
+			"autoscaler_verbose": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			// Start global_settings/bgp
+			"bgp_enabled": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			"as_number": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  65534,
+			},
+			// Start global_settings/cluster_comms
+			"allow_update_default": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			"allowed_update_hosts": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MinItems: 1,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"state_sync_interval": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  3,
+			},
+			"state_sync_timeout": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  6,
+			},
+			// Start global_settings/connection
+			"idle_connections_max": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"idle_timeout": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  10,
+			},
+			"listen_queue_size": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"max_accepting": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"multiple_accept": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			// Start global_settings/data_pane_acceleration
+			"tcp_delay_ack": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"tcp_win_scale": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -232,6 +368,7 @@ func resourceGlobalSettings() *schema.Resource {
 func mapGlobalSettingsType(d *schema.ResourceData) *Globals {
 	var licenses []string
 	var elliptic []string
+	var allowed_update_hosts []string
 
 	return &Globals{
 		Properties: &Properties{
@@ -277,6 +414,52 @@ func mapGlobalSettingsType(d *schema.ResourceData) *Globals {
 				SupportTls11:                 d.Get("support_tls11").(bool),
 				SupportTls12:                 d.Get("support_tls12").(bool),
 			},
+			GlobalAppliance: &GlobalAppliance{
+				BootloaderPassword:       d.Get("bootloader_password").(string),
+				ManageNcipher:            d.Get("manage_ncipher").(bool),
+				NethsmEsn:                d.Get("nethsm_esn").(string),
+				NethsmHash:               d.Get("nethsm_hash").(string),
+				NethsmIp:                 d.Get("nethsm_ip").(string),
+				NethsmNcipherRfs:         d.Get("nethsm_ncipher_rfs").(string),
+				ReturnPathRoutingEnabled: d.Get("return_path_routing_enabled").(bool),
+			},
+			GlobalAptimizer: &GlobalAptimizer{
+				MaxDependentFetchSize:        d.Get("max_dependent_fetch_size").(string),
+				MaxOriginalContentBufferSize: d.Get("max_original_content_buffer_size").(string),
+				WatchdogInterval:             d.Get("watchdog_interval").(int),
+				WatchdogLimit:                d.Get("watchdog_limit").(int),
+			},
+			GlobalAuditlog: &GlobalAuditlog{
+				ViaEventd: d.Get("via_eventd").(bool),
+				ViaSyslog: d.Get("via_syslog").(bool),
+			},
+			GlobalBandwidth: &GlobalBandwidth{},
+			GlobalAutoScaler: &GlobalAutoScaler{
+				Verbose: d.Get("autoscaler_verbose").(bool),
+			},
+			GlobalBgp: &GlobalBgp{
+				AsNumber: d.Get("as_number").(int),
+				Enabled:  d.Get("bgp_enabled").(bool),
+			},
+			GlobalClusterComms: &GlobalClusterComms{
+				AllowUpdateDefault: d.Get("allow_update_default").(bool),
+				AllowedUpdateHosts: allowed_update_hosts,
+				StateSyncInterval:  d.Get("state_sync_interval").(int),
+				StateSyncTimeout:   d.Get("state_sync_timeout").(int),
+			},
+			GlobalConnection: &GlobalConnection{
+				IdleConnectionsMax: d.Get("idle_connections_max").(int),
+				IdleTimeout:        d.Get("idle_timeout").(int),
+				ListenQueueSize:    d.Get("listen_queue_size").(int),
+				MaxAccepting:       d.Get("max_accepting").(int),
+				MultipleAccept:     d.Get("multiple_accept").(bool),
+			},
+			GlobalDataPlaneAcceleration: &GlobalDataPlaneAcceleration{},
+			GlobalDns:                   &GlobalDns{},
+			GlobalDnsAutoscale:          &GlobalDnsAutoscale{},
+			GlobalEc2:                   &GlobalEc2{},
+			GlobalEventing:              &GlobalEventing{},
+			GlobalFaultTolerance:        &GlobalFaultTolerance{},
 		},
 	}
 }
@@ -380,6 +563,38 @@ func resourceGlobalSettingsRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("support_tls1", global.Properties.GlobalAdmin.SupportTls1)
 	d.Set("Support_tls11", global.Properties.GlobalAdmin.SupportTls11)
 	d.Set("support_tls12", global.Properties.GlobalAdmin.SupportTls12)
+
+	// global_settings/appliance
+	d.Set("bootloader_password", global.Properties.GlobalAppliance.BootloaderPassword)
+	d.Set("manage_ncipher", global.Properties.GlobalAppliance.ManageNcipher)
+	d.Set("nethsm_esn", global.Properties.GlobalAppliance.NethsmEsn)
+	d.Set("nethsm_hash", global.Properties.GlobalAppliance.NethsmHash)
+	d.Set("nethsm_ip", global.Properties.GlobalAppliance.NethsmIp)
+	d.Set("nethsm_ncipher_rfs", global.Properties.GlobalAppliance.NethsmNcipherRfs)
+	d.Set("return_path_routing_enabled", global.Properties.GlobalAppliance.ReturnPathRoutingEnabled)
+
+	// global_settings/aptimizer
+	d.Set("max_dependent_fetch_size", global.Properties.GlobalAptimizer.MaxDependentFetchSize)
+	d.Set("max_original_content_buffer_size", global.Properties.GlobalAptimizer.MaxOriginalContentBufferSize)
+	d.Set("watchdog_interval", global.Properties.GlobalAptimizer.WatchdogInterval)
+	d.Set("watchdog_limit", global.Properties.GlobalAptimizer.WatchdogLimit)
+
+	// global_settings/audit_log
+	d.Set("via_eventd", global.Properties.GlobalAuditlog.ViaEventd)
+	d.Set("via_syslogd", global.Properties.GlobalAuditlog.ViaSyslog)
+
+	// global_settings/autoscaler
+	d.Set("autoscaler_verbose", global.Properties.GlobalAutoScaler.Verbose)
+
+	// global_settings/bgp
+	d.Set("as_number", global.Properties.GlobalBgp.AsNumber)
+	d.Set("bgp_enabled", global.Properties.GlobalBgp.Enabled)
+
+	// global_settings/cluster_comms
+	d.Set("allow_update_default", global.Properties.GlobalClusterComms.AllowUpdateDefault)
+	d.Set("allowed_update_hosts", global.Properties.GlobalClusterComms.AllowedUpdateHosts)
+	d.Set("state_sync_interval", global.Properties.GlobalClusterComms.StateSyncInterval)
+	d.Set("state_sync_timeout", global.Properties.GlobalClusterComms.StateSyncTimeout)
 
 	return nil
 }
