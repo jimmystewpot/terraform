@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	apipath = "/api/tm/3.10/config/active"
+	basepath = "/api/tm/3.10/config/active"
 )
 
 // The Supported HTTP Methods are outliend in the brocade-vtm-10.4-restapi.pdf document found

@@ -439,8 +439,9 @@ func resourceGlobalSettings() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				MinItems: 1,
-				Elem: schema.Schema{
-					Type: schema.TypeString},
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"heartbeat_method": &schema.Schema{
 				Type:         schema.TypeString,
@@ -678,7 +679,7 @@ func resourceGlobalSettingsCreate(d *schema.ResourceData, meta interface{}) erro
 
 	jsonpayload := jsonEncoder(globalSettings)
 
-	system_req, err := client.Put(fmt.Sprintf("%s/global_settings", apipath), jsonpayload)
+	system_req, err := client.Put(fmt.Sprintf("%s/global_settings", basepath), jsonpayload)
 
 	if !handleHttpCodes(system_req) {
 		log.Printf("GlobalSystemCreate system_req status code: %+v\n", system_req.StatusCode)
@@ -708,7 +709,7 @@ func resourceGlobalSettingsCreate(d *schema.ResourceData, meta interface{}) erro
 
 func resourceGlobalSettingsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*ClientConfig)
-	global_system_req, err := client.Get(fmt.Sprintf("%s/global_settings", apipath))
+	global_system_req, err := client.Get(fmt.Sprintf("%s/global_settings", basepath))
 
 	if err != nil {
 		return err
